@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { HashRouter as Router, Navigate, Route, Routes } from 'react-router-dom';
 import { Storage } from "@plasmohq/storage";
 
-import { type ImageProcessingData, ImageProcessingStage } from "~model/image-processing";
+import { type ImageProcessingData, ImageProcessingStage, storageKey } from "~model/image-processing";
 
 import Main from "~pages/main";
 import Loading from "~pages/loading";
@@ -16,7 +16,8 @@ function IndexPopup() {
     useEffect(() => {
         const checkProcessingStage = async () => {
             const storage = new Storage();
-            const processingData: ImageProcessingData = await storage.get("ProcessingData");
+            const processingData: ImageProcessingData = await storage.get(storageKey);
+            console.log(processingData.stage)
 
             switch (processingData.stage) {
                 case ImageProcessingStage.DONE:
