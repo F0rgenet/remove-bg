@@ -1,17 +1,17 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate } from "react-router-dom";
+import React, {useEffect, useState} from 'react';
+import {useNavigate} from "react-router-dom";
 
-import {type ImageProcessingData, ImageProcessingStage, storageKey } from "~model/image-processing";
-import ImageProcessor from "~model/image-processing";
-import { useImageUpload } from "~hooks/image-upload";
-import { getDataURL } from "~utils";
+import {type ImageProcessingResponse} from "~model/image-processing";
+import {useImageUpload} from "~hooks/image-upload";
+import {fileToDataURL, imageURLtoFile} from "~utils";
 
+import {Storage} from "@plasmohq/storage";
+import {sendToBackground, sendToContentScript} from "@plasmohq/messaging"
+import { usePort } from "@plasmohq/messaging/hook"
+
+import "../static/styles.css";
 import hint1 from "data-base64:/assets/hint-1.png"
 import hint2 from "data-base64:/assets/hint-2.png"
-
-import "../static/popup.css";
-import {Storage} from "@plasmohq/storage";
-import {act} from "react-dom/test-utils";
 
 function Star({ filled, index, onClick, onMouseEnter, onMouseLeave  }) {
     const colors = ["#6C60F7", "#8B79FF", "#AA93FF", "#C8AEFF", "#E7CAFF"]
@@ -22,8 +22,6 @@ function Star({ filled, index, onClick, onMouseEnter, onMouseLeave  }) {
         </span>
     );
 }
-
-
 
 function RatingComponent({ active, setShowRating }) {
     if (!active) { return; }
@@ -70,10 +68,7 @@ function RatingComponent({ active, setShowRating }) {
     )
 }
 
-
 function UploadButton({onFileSelect}) {
-    const navigate = useNavigate();
-
     const handleClick = () => {
         const fileInput = document.createElement('input');
         fileInput.type = 'file';
@@ -93,7 +88,7 @@ function UploadButton({onFileSelect}) {
     );
 }
 
-const Main = () => {
+const Home = () => {
     const navigate = useNavigate();
     const storage = new Storage();
     const [showRating, setShowRating] = useState(false);
@@ -103,40 +98,30 @@ const Main = () => {
     useEffect(() => {
         const fetchData = async () => {
             const showedRatingData: boolean = await storage.get("CanShowRating");
-            if (showedRatingData) {
-                setCanShowRating(false);
-            }
-
+            if (showedRatingData) { setCanShowRating(false); }
             const count: number = await storage.get("UsageCount");
             setUsageCount(count);
-
-            if (count === 10 && canShowRating) {
-                setShowRating(true);
-            }
+            if (count === 10 && canShowRating) { setShowRating(true); }
             console.log(`COUNT: ${count} CAN_SHOW: ${canShowRating} SHOW: ${showRating}`);
         };
-
         fetchData().then();
     }, []);
 
     const onFileSelect = async (file: File) => {
-        const imageProcessor = new ImageProcessor();
-        const dataURL = await getDataURL(file);
-        if (!dataURL) {
-            return;
-        }
-        const currentUsageCount = usageCount;
-        await storage.set(storageKey, { imageURL: file, stage: ImageProcessingStage.WORKING });
-        await storage.set("UsageCount", currentUsageCount + 1);
+        await storage.set("UsageCount", usageCount + 1);
+
         navigate("/loading");
-        const processingResponse = await imageProcessor.processImage(dataURL, file.name);
+        const processingResponse: ImageProcessingResponse = (await sendToBackground({
+            name: "processing",
+            body: {
+                imageDataURL: await fileToDataURL(file),
+                imageFilename: file.name
+            }
+        })).result
         if (processingResponse.success) {
-            const processedImageURL = processingResponse.resultURL;
-            await storage.set(storageKey, { imageURL: processedImageURL, stage: ImageProcessingStage.DONE });
             navigate("/result");
         } else {
             navigate("/error");
-            // TODO: Add params
         }
     };
 
@@ -160,4 +145,4 @@ const Main = () => {
     )
 }
 
-export default Main
+export default Home

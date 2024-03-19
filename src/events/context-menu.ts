@@ -1,3 +1,6 @@
+import {ContextMenuAction} from "~background";
+import {imageURLtoFile} from "~utils";
+
 export function createContextMenu() {
     chrome.contextMenus.create({
         id: "remove-controller-copy",
@@ -11,16 +14,17 @@ export function createContextMenu() {
     });
 }
 
-export function setupContextMenuEvents(removeBackgroundAndCopy: (imageURL: string) => void, removeBackgroundAndSave: (imageURL: string) => void) {
-    chrome.contextMenus.onClicked.addListener(function (info, _) {
+export function setupContextMenuEvents(handler: (file: File, action: ContextMenuAction)=>void) {
+    chrome.contextMenus.onClicked.addListener(async function (info, _) {
         const sourceURL = info.srcUrl
         if (!sourceURL) {
             throw new Error("Url not found in file")
         }
+        const file: File = await imageURLtoFile(sourceURL);
         if (info.menuItemId === "remove-controller-copy") {
-            removeBackgroundAndCopy(sourceURL);
+            handler(file, ContextMenuAction.COPY);
         } else if (info.menuItemId === "remove-controller-save") {
-            removeBackgroundAndSave(sourceURL);
+            handler(file, ContextMenuAction.SAVE);
         }
     });
 }

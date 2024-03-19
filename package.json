@@ -31,11 +31,15 @@
   },
   "manifest": {
     "host_permissions": [
-      "https://*/*"
+      "<all_urls>"
     ],
     "permissions": [
       "tabs",
-      "contextMenus"
+      "contextMenus",
+      "activeTab",
+      "tabs",
+      "scripting",
+      "downloads"
     ]
   }
 }

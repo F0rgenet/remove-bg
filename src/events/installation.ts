@@ -1,7 +1,12 @@
 import {createContextMenu} from "~events/context-menu";
-
+import {ProcessingStep, setProcessingStep} from "~model/image-processing";
+import {Storage} from "@plasmohq/storage";
 
 export function onInstalled(installationDetails: chrome.runtime.InstalledDetails): void {
+    const storage = new Storage();
+    setProcessingStep(ProcessingStep.EMPTY).then();
+    storage.set("UsageCount", 0).then();
+    storage.set("CanShowRating", false).then()
     createContextMenu();
     const installReason = installationDetails.reason
     switch (installReason){

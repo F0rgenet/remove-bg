@@ -1,15 +1,17 @@
 import ChallengeSolver from "./bypass";
-import dataURLtoFile from "../utils";
+import dataURLtoFile, {blobToDataURL, fileToDataURL} from "../utils";
+import {Storage} from "@plasmohq/storage";
+import setBadgeText, {BadgeTextLevel} from "~events/badge-actions";
 
 export enum ImageProcessingStage {
-    EMPTY = null,
+    EMPTY = "empty",
     WORKING = "working",
     DONE = "done"
 }
 
 export const storageKey = "ImageProcessingData";
 
-export type ImageProcessingData = {imageFile: File, stage: ImageProcessingStage, imageURL?: string, usageCount: number};
+export type ImageProcessingData = {imageURL: string, stage: ImageProcessingStage, usageCount: number};
 
 export type ImageProcessingResponse = {success: boolean, resultURL: string, failureReason?: string};
 
@@ -69,6 +71,47 @@ class ImageProcessor {
         form_data.append("image_file", imageFile, imageFile.name);
         form_data.append("usrc", "upl");
         return form_data;
+    }
+}
+
+export const enum ProcessingStep {
+    EMPTY = 0,
+    WORKING = 1,
+    DONE = 2
+}
+
+export async function setProcessingStep(step: ProcessingStep, imageURL?: string): Promise<void> {
+    const storage = new Storage();
+    switch (step) {
+        case ProcessingStep.EMPTY:
+            await storage.set(storageKey, { imageURL: null, stage: ImageProcessingStage.EMPTY });
+            setBadgeText("");
+            break;
+        case ProcessingStep.WORKING:
+            await storage.set(storageKey, { imageURL: null, stage: ImageProcessingStage.WORKING });
+            setBadgeText("LOAD", BadgeTextLevel.PROGRESS);
+            break;
+        case ProcessingStep.DONE:
+            await storage.set(storageKey, { imageURL: imageURL, stage: ImageProcessingStage.DONE });
+            setBadgeText("DONE", BadgeTextLevel.RESULT);
+            break;
+    }
+}
+
+export async function processImageAction(imageFilename: string, imageDataURL: string){
+    if (!imageDataURL) {
+        return;
+    }
+    await setProcessingStep(ProcessingStep.WORKING);
+    
+    const imageProcessor = new ImageProcessor();
+    const result = await imageProcessor.processImage(imageDataURL, imageFilename)
+    if (result.success) {
+        await setProcessingStep(ProcessingStep.DONE, result.resultURL);
+        return result;
+    } else {
+        await setProcessingStep(ProcessingStep.EMPTY);
+        throw new Error(`Cant process image: ${imageFilename}`)
     }
 }
 

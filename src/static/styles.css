@@ -154,15 +154,13 @@ body {
 }
 
 #result-bounding-box {
-    margin-top: 60px;
-    outline-style: dashed;
-    outline-width: 1px;
-    background-size: contain;
+    margin-top: 35px;
     position: absolute;
+    background-size: contain;
     background-position: center;
     background-repeat: no-repeat;
-    height: 100px;
-    width: 100px;
+    height: 150px;
+    width: 150px;
 }
 
 .buttons-row {
@@ -179,6 +177,7 @@ body {
     overflow: hidden;
     outline: none;
     border: none;
+    cursor: pointer;
 }
 
 .close-button {
@@ -194,4 +193,9 @@ body {
 
 .close-button:hover {
     color: red;
+}
+
+#image-result {
+    max-width:100%;
+    max-height:100%;
 }

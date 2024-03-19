@@ -1,6 +1,6 @@
 import loadingGif from "data-base64:/assets/loading.gif"
 
-import "../static/popup.css"
+import "../static/styles.css"
 
 const Loading = () => {
     return (

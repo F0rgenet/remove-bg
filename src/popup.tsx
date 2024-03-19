@@ -4,11 +4,11 @@ import { Storage } from "@plasmohq/storage";
 
 import { type ImageProcessingData, ImageProcessingStage, storageKey } from "~model/image-processing";
 
-import Main from "~pages/main";
+import Home from "~pages/home";
 import Loading from "~pages/loading";
 import Result from "~pages/result";
 
-import "./static/popup.css";
+import "./static/styles.css";
 
 function IndexPopup() {
     const [route, setRoute] = useState("/");
@@ -17,7 +17,6 @@ function IndexPopup() {
         const checkProcessingStage = async () => {
             const storage = new Storage();
             const processingData: ImageProcessingData = await storage.get(storageKey);
-            console.log(processingData.stage)
 
             switch (processingData.stage) {
                 case ImageProcessingStage.DONE:
@@ -44,7 +43,7 @@ function IndexPopup() {
         <Router>
             <Routes>
                 <Route path="/" element={<Navigate replace to={route} />} />
-                <Route path="/home" element={<Main />} />
+                <Route path="/home" element={<Home />} />
                 <Route path="/loading" element={<Loading />} />
                 <Route path="/result" element={<Result />} />
                 <Route path="/error" element={<div>Error loading processing stage</div>} />
