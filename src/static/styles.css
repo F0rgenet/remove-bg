@@ -164,20 +164,36 @@ body {
 }
 
 .buttons-row {
+    width: 211px;
     display: flex;
+    position: absolute;
+    margin-bottom: 20px;
+    bottom: 0;
 }
 
 .action-button {
-    width: 106px;
-    height: 53px;
-    margin-top: 145px;
+    width: 50%;
+    height: 55px;
     font-family: "Inter", sans-serif;
     font-weight: bold;
     background-color: #eeeeee;
     overflow: hidden;
     outline: none;
     border: none;
+    border-top: 1px solid #707070;
     cursor: pointer;
+}
+
+.action-button:first-child {
+    border-bottom-left-radius: 10px;
+}
+
+.action-button:last-child {
+    border-bottom-right-radius: 10px;
+}
+
+.action-button:hover {
+    color: #0C84DB;
 }
 
 .close-button {

@@ -3,15 +3,13 @@ import {useNavigate} from "react-router-dom";
 
 import {type ImageProcessingResponse} from "~model/image-processing";
 import {useImageUpload} from "~hooks/image-upload";
-import {fileToDataURL, imageURLtoFile} from "~utils";
+import {fileToDataURL} from "~utils";
 
 import {Storage} from "@plasmohq/storage";
-import {sendToBackground, sendToContentScript} from "@plasmohq/messaging"
-import { usePort } from "@plasmohq/messaging/hook"
+import {sendToBackground} from "@plasmohq/messaging"
 
 import "../static/styles.css";
-import hint1 from "data-base64:/assets/hint-1.png"
-import hint2 from "data-base64:/assets/hint-2.png"
+import usageHint from "data-base64:/assets/usage-hint.png"
 
 function Star({ filled, index, onClick, onMouseEnter, onMouseLeave  }) {
     const colors = ["#6C60F7", "#8B79FF", "#AA93FF", "#C8AEFF", "#E7CAFF"]
@@ -74,7 +72,7 @@ function UploadButton({onFileSelect}) {
         fileInput.type = 'file';
         fileInput.accept = 'image/*';
         fileInput.style.display = 'none';
-        fileInput.onchange = (event) => {
+        fileInput.onchange = () => {
             const files = fileInput.files;
             if (files && files[0]) {
                 onFileSelect(files[0]);
@@ -137,8 +135,7 @@ const Home = () => {
             </div>
             <a className="tooltip-text" id="upload-tooltip">Or right-click on any picture in the<br />browser</a>
             <div className="tooltip-images">
-                <img className="tooltip-image" id="image-tooltip-1" alt="hint" src={hint1} />
-                <img className="tooltip-image" id="image-tooltip-2" alt="hint" src={hint2} />
+                <img className="tooltip-image" id="image-tooltip-1" alt="hint" src={usageHint} />
             </div>
             <RatingComponent active={showRating} setShowRating={setShowRating}></RatingComponent>
         </div>

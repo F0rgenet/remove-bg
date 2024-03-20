@@ -3,12 +3,12 @@ import {imageURLtoFile} from "~utils";
 
 export function createContextMenu() {
     chrome.contextMenus.create({
-        id: "remove-controller-copy",
-        title: "Remove controller and copy",
+        id: "context-open",
+        title: "Remove controller and open",
         contexts: ["image"]
     });
     chrome.contextMenus.create({
-        id: "remove-controller-save",
+        id: "context-save",
         title: "Remove controller and save",
         contexts: ["image"]
     });
@@ -21,9 +21,9 @@ export function setupContextMenuEvents(handler: (file: File, action: ContextMenu
             throw new Error("Url not found in file")
         }
         const file: File = await imageURLtoFile(sourceURL);
-        if (info.menuItemId === "remove-controller-copy") {
-            handler(file, ContextMenuAction.COPY);
-        } else if (info.menuItemId === "remove-controller-save") {
+        if (info.menuItemId === "context-open") {
+            handler(file, ContextMenuAction.OPEN);
+        } else if (info.menuItemId === "context-save") {
             handler(file, ContextMenuAction.SAVE);
         }
     });

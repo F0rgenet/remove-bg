@@ -1,15 +1,7 @@
 import {setupContextMenuEvents} from "~events/context-menu";
 import {onInstalled} from "~events/installation";
-import {Storage} from "@plasmohq/storage";
 import {fileToDataURL} from "~utils";
-import {
-    processImageAction,
-    ProcessingStep,
-    setProcessingStep, storageKey
-} from "~model/image-processing";
-import result from "~pages/result";
-
-const storage = new Storage();
+import {type ImageProcessingData, processImageAction, storageKey} from "~model/image-processing";
 
 async function copyImageToClipboard(imageURL: string): Promise<void> {
     // FIXME: Blob size не даёт
@@ -31,7 +23,7 @@ async function downloadImage(imageURL: string): Promise<void> {
     URL.revokeObjectURL(url);
 }
 
-async function executeScript(tabId: number, callback: (...args: any[]) => unknown, ...args: any[]): Promise<void> {
+async function executeScript(callback: (...args: any[]) => unknown, ...args: any[]): Promise<void> {
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
     chrome.scripting.executeScript({ target: { tabId: tab.id }, func: callback, args: args }).then();
 }
@@ -39,23 +31,20 @@ async function executeScript(tabId: number, callback: (...args: any[]) => unknow
 
 export const enum ContextMenuAction {
     COPY = 0,
-    SAVE = 1
-}
-
-async function getCurrentTab(): Promise<chrome.tabs.Tab | undefined> {
-    let queryOptions = { active: true, lastFocusedWindow: true };
-    let [tab] = await chrome.tabs.query(queryOptions);
-    return tab;
+    SAVE = 1,
+    OPEN = 2
 }
 
 export async function copyImage(imageURL: string){
-    const currentTabID = (await getCurrentTab()).id;
-    await executeScript(currentTabID, copyImageToClipboard, imageURL);
+    await executeScript(copyImageToClipboard, imageURL);
 }
 
 export async function saveImage(imageURL: string){
-    const currentTabID = (await getCurrentTab()).id;
-    await executeScript(currentTabID, downloadImage, imageURL);
+    await executeScript(downloadImage, imageURL);
+}
+
+export async function openImage(imageURL: string) {
+    await chrome.tabs.create({ url: imageURL});
 }
 
 async function removeBackgroundAction(file: File, action: ContextMenuAction){
@@ -72,6 +61,9 @@ async function removeBackgroundAction(file: File, action: ContextMenuAction){
             break;
         case ContextMenuAction.SAVE:
             await saveImage(resultURL);
+            break;
+        case ContextMenuAction.OPEN:
+            await openImage(resultURL);
             break;
     }
 }

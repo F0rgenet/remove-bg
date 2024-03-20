@@ -1,13 +1,5 @@
-import {type PlasmoMessaging, sendToBackground, sendToContentScript} from "@plasmohq/messaging"
-import ImageProcessor, {
-    type ImageProcessingResponse,
-    ImageProcessingStage,
-    processImageAction,
-    storageKey
-} from "~model/image-processing";
-import {Storage} from "@plasmohq/storage";
-import setBadgeText, {BadgeTextLevel} from "~events/badge-actions";
-import dataURLtoFile, {fileToDataURL, imageURLtoFile} from "~utils";
+import {type PlasmoMessaging} from "@plasmohq/messaging"
+import {processImageAction} from "~model/image-processing";
 
 
 type RequestBody = {imageDataURL: string, imageFilename: string};
