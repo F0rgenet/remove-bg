@@ -1,8 +1,8 @@
 {
   "name": "remove-bg",
-  "displayName": "Remove bg",
+  "displayName": "__MSG_extensionName__",
   "version": "0.0.1",
-  "description": "Remove bg with the help of AI and obtain a transparent background on any images. Let the magic assist you in your work and life.",
+  "description": "__MSG_extensionDescription__",
   "author": "forgenet@inbox.ru",
   "scripts": {
     "dev": "plasmo dev",
@@ -27,9 +27,10 @@
     "@types/react": "18.2.48",
     "@types/react-dom": "18.2.18",
     "prettier": "3.2.4",
-    "typescript": "5.3.3"
+    "typescript": "5.3.3" 
   },
   "manifest": {
+    "name": "__MSG_extensionName__",
     "host_permissions": [
       "<all_urls>"
     ],
@@ -40,6 +41,7 @@
       "tabs",
       "scripting",
       "downloads"
-    ]
+    ],
+    "default_locale": "en"
   }
 }
