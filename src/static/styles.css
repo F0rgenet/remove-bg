@@ -1,8 +1,9 @@
 body {
+    font-family: 'Inter', sans-serif;
+
     margin: 0;
-    font-family: "Inter", sans-serif;
-    background: rgb(242,253,137);
-    background: linear-gradient(180deg, rgba(242,253,137,1) 0%, rgba(198,255,141,1) 100%);
+    background: rgb(242, 253, 137);
+    background: linear-gradient(180deg, rgba(242, 253, 137, 1) 0%, rgba(198, 255, 141, 1) 100%);
 }
 
 .hidden {
@@ -10,15 +11,16 @@ body {
 }
 
 .popup-page {
-    width: 250px;
-    background-size: cover;
-    user-select: none;
-    outline: none;
     display: flex;
-    flex-direction: column;
     align-items: center;
+    flex-direction: column;
+
+    width: 250px;
+    margin-bottom: 15px;
+    user-select: none;
     text-align: center;
-    margin-bottom: 20px;
+    outline: none;
+    background-size: cover;
 }
 
 .title {
@@ -29,53 +31,56 @@ body {
 
 .upload-drag-over {
     border: 1px dashed #333;
-    background-color: #000000;
+    background-color: #000;
 }
 
 #upload-area {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+
     width: 210px;
     height: 104px;
     margin-top: 8px;
-    outline: 1px dashed #707070;
-    border-radius: 5px;
-    background-color: #ffffff;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
     text-align: center;
-    box-shadow: 3px 3px 2px 1px #a2ce70A5;
+    border-radius: 5px;
+    outline: 1px dashed #707070;
+    background-color: #fff;
+    box-shadow: 3px 3px 2px 1px #a2ce70a5;
 }
 
 #upload-button {
-    position: relative;
-    width: 170px;
-    height: 45px;
-    border: none;
-    border-radius: 5px;
     font-size: 12px;
     font-weight: 300;
-    color: #ffffff;
-    background: rgb(11,132,218);
-    background: linear-gradient(90deg, rgba(11,132,218,1) 0%, rgba(107,95,246,1) 100%);
+
+    position: relative;
+    overflow: hidden;
+    width: 170px;
+    height: 45px;
     margin-top: 20px;
     cursor: pointer;
-    overflow: hidden;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    background: rgb(11, 132, 218);
+    background: linear-gradient(90deg, rgba(11, 132, 218, 1) 0%, rgba(107, 95, 246, 1) 100%);
 }
 
 #upload-button::before {
-    content: '';
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: #fff;
+
+    content: '';
+    transition: opacity .1s ease;
     opacity: 0;
-    transition: opacity 0.1s ease;
+    background-color: #fff;
 }
 
 #upload-button:hover::before {
-    opacity: 0.1;
+    opacity: .1;
 }
 
 .upload-hint {
@@ -83,8 +88,8 @@ body {
     font-weight: 300;
     font-style: italic;
     margin-top: 8px;
+    opacity: .6;
     color: #707070;
-    opacity: 0.6;
 }
 
 .tooltip-text {
@@ -94,10 +99,11 @@ body {
 
 .tooltip-images {
     display: flex;
-    flex-direction: row;
-    align-items: center;
     align-content: center;
+    align-items: center;
+    flex-direction: row;
     margin-top: 10px;
+    margin-bottom: 10px;
 }
 
 .tooltip-image {
@@ -110,11 +116,11 @@ body {
 }
 
 #rating-separator {
-    border: none;
-    background-color: #6C60F7;
-    color: #6C60F7;
     width: 100%;
     height: 1px;
+    color: #6c60f7;
+    border: none;
+    background-color: #6c60f7;
 }
 
 #rating-tooltip {
@@ -128,25 +134,31 @@ body {
 }
 
 .rating-stars {
-    margin-top: -10px;
-}
-
-.rating-star {
-    font-family: Arial, serif;
-    font-size: 40px;
+    margin-top: 5px;
 }
 
 .frame {
     display: flex;
-    flex-direction: column;
     align-items: center;
-    text-align: center;
-    margin-top: 20px;
+    flex-direction: column;
+
     width: 211px;
     height: 240px;
+    margin-top: 20px;
+    text-align: center;
     border-radius: 10px;
-    box-shadow: 3px 3px 2px 1px #a2ce70A5;
-    background-color: #ffffee
+    background-color: #ffe;
+    box-shadow: 3px 3px 2px 1px #a2ce70a5;
+;
+}
+
+.content {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+
+    width: 100%;
+    height: calc(100% - 50px);
 }
 
 #loading-gif {
@@ -154,34 +166,36 @@ body {
 }
 
 #result-bounding-box {
-    margin-top: 35px;
     position: absolute;
-    background-size: contain;
-    background-position: center;
-    background-repeat: no-repeat;
+    align-content: center;
+    align-items: center;
+    align-self: center;
     height: 150px;
-    width: 150px;
+    margin-top: 35px;
 }
 
 .buttons-row {
-    width: 211px;
-    display: flex;
     position: absolute;
-    margin-bottom: 20px;
     bottom: 0;
+    display: flex;
+    flex: 0 0 0 50px;
+
+    width: 211px;
+    height: 50px;
+    margin-bottom: 15px;
 }
 
 .action-button {
-    width: 50%;
-    height: 55px;
-    font-family: "Inter", sans-serif;
+    font-family: 'Inter', sans-serif;
     font-weight: bold;
-    background-color: #eeeeee;
     overflow: hidden;
-    outline: none;
+
+    width: 50%;
+    cursor: pointer;
     border: none;
     border-top: 1px solid #707070;
-    cursor: pointer;
+    outline: none;
+    background-color: #eee;
 }
 
 .action-button:first-child {
@@ -193,18 +207,18 @@ body {
 }
 
 .action-button:hover {
-    color: #0C84DB;
+    color: #0c84db;
 }
 
 .close-button {
+    font-size: 15px;
     position: absolute;
     top: 20px;
     right: 20px;
-    background: none;
-    border: none;
-    color: black;
     cursor: pointer;
-    font-size: 15px;
+    color: black;
+    border: none;
+    background: none;
 }
 
 .close-button:hover {
@@ -212,6 +226,8 @@ body {
 }
 
 #image-result {
-    max-width:100%;
-    max-height:100%;
+    max-width: 90%;
+    max-height: 90%;
+    margin-top: 10px;
+    outline: 1px dashed #707070;
 }

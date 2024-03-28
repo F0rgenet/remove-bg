@@ -6,7 +6,8 @@ export function onInstalled(installationDetails: chrome.runtime.InstalledDetails
     const storage = new Storage();
     setProcessingStep(ProcessingStep.EMPTY).then();
     storage.set("UsageCount", 0).then();
-    storage.set("CanShowRating", false).then()
+    storage.set("RatingClicked", false).then();
+    storage.set("RatingShowed", false).then();
     createContextMenu();
     const installReason = installationDetails.reason
     switch (installReason){

@@ -13,6 +13,7 @@
     "@plasmohq/messaging": "^0.6.2",
     "@plasmohq/storage": "^1.9.3",
     "localforage": "^1.10.0",
+    "lucide-react": "^0.363.0",
     "match-sorter": "^6.3.4",
     "plasmo": "0.85.2",
     "react": "18.2.0",
@@ -26,8 +27,9 @@
     "@types/node": "20.11.5",
     "@types/react": "18.2.48",
     "@types/react-dom": "18.2.18",
+    "csscomb": "^4.3.0",
     "prettier": "3.2.4",
-    "typescript": "5.3.3" 
+    "typescript": "5.3.3"
   },
   "manifest": {
     "name": "__MSG_extensionName__",

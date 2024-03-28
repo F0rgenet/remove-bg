@@ -1,6 +1,7 @@
-import loadingGif from "data-base64:/assets/loading.gif"
+import React, { useEffect } from "react";
+import loadingGif from "data-base64:/assets/loading.gif";
+import "../static/styles.css";
 
-import "../static/styles.css"
 
 const Loading = () => {
     return (
@@ -10,7 +11,7 @@ const Loading = () => {
                 <img src={loadingGif} alt="loading" id="loading-gif"/>
             </div>
         </div>
-    )
-}
+    );
+};
 
-export default Loading
+export default Loading;

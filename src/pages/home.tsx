@@ -11,13 +11,13 @@ import {sendToBackground} from "@plasmohq/messaging"
 import "../static/styles.css";
 import usageHint from "data-base64:/assets/usage-hint.png"
 
-function Star({ filled, index, onClick, onMouseEnter, onMouseLeave  }) {
-    const colors = ["#6C60F7", "#8B79FF", "#AA93FF", "#C8AEFF", "#E7CAFF"]
+import { Star as StarIcon } from "lucide-react"
 
+function Star({ filled, index, onClick, onMouseEnter, onMouseLeave  }) {
+    const colors = ["#007CFF", "#008BFB", "#0091D5", "#0093A1", "#00916A"]
+    const starColor = filled?colors[index]:"#6C60F7";
     return (
-        <span className="rating-star" style={{ color: filled?colors[index]:"#6C60F7" }} onClick={onClick} onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave}>
-            {filled ? "★" : "☆"}
-        </span>
+        <StarIcon className="rating-star" color={starColor} fill={starColor} size={24} onClick={onClick} onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave}/>
     );
 }
 
@@ -29,11 +29,12 @@ function RatingComponent({ active, setShowRating }) {
     const handleStarClick = async (starIndex: number) => {
         let url = "https://forms.gle/HDEJhEhkEEcZhvc1A";
         if (starIndex > 2) {
-            url = "https://google.com";
+            url = "https://forms.gle/HDEJhEhkEEcZhvc1A";
         }
         chrome.tabs.create({ url: url }).then()
         const storage = new Storage();
-        await storage.set("UsageCount", 0);
+        await storage.set("RatingClicked", true);
+        await storage.set("RatingShowed", false);
         setShowRating(false);
     };
 
@@ -90,23 +91,31 @@ const Home = () => {
     const navigate = useNavigate();
     const storage = new Storage();
     const [showRating, setShowRating] = useState(false);
-    const [canShowRating, setCanShowRating] = useState(true);
     const [usageCount, setUsageCount] = useState(0);
 
+    // TODO: Вынести в RatingComponent
     useEffect(() => {
         const fetchData = async () => {
-            const showedRatingData: boolean = await storage.get("CanShowRating");
-            if (showedRatingData) { setCanShowRating(false); }
+            // TODO: Переписать
             const count: number = await storage.get("UsageCount");
+            const ratingClicked: boolean = await storage.get("RatingClicked");
+            const ratingShowed: boolean = await storage.get("RatingShowed");
             setUsageCount(count);
-            if (count === 10 && canShowRating) { setShowRating(true); }
-            console.log(`COUNT: ${count} CAN_SHOW: ${canShowRating} SHOW: ${showRating}`);
+            if (((count === 10 || count == 1) && !ratingClicked) || (ratingShowed && !ratingClicked)) {
+                setShowRating(true);
+                await storage.set("RatingShowed", true);
+            } else {
+                setShowRating(false);
+            }
+            console.log(`COUNT: ${count} SHOW: ${showRating}`);
         };
         fetchData().then();
     }, []);
 
     const onFileSelect = async (file: File) => {
         await storage.set("UsageCount", usageCount + 1);
+        await storage.set("RatingClicked", false);
+        setUsageCount(usageCount + 1);
 
         navigate("/loading");
         const processingResponse: ImageProcessingResponse = (await sendToBackground({

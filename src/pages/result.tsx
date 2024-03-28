@@ -68,12 +68,18 @@ const Result = () => {
             <div className="frame">
                 <button className="close-button" onClick={handleRedirect}>✖</button>
                 <h1 className="title">{action || "Background removed! ✅"}</h1>
-                <div id="result-bounding-box">
-                    {imageUrl && <img src={imageUrl} alt="Processed Image" id="image-result" />}
-                </div>
-                <div className="buttons-row">
-                    <button className="action-button" style={{ borderRight: allowDownload ? "1px solid #707070" : "none", width: allowDownload ? "50%" : "100%" }} onClick={handleOpen}>Open</button>
-                    {allowDownload && <button className="action-button" onClick={handleSave}>Download</button>}
+                <div className="content">
+                    <div id="result-bounding-box">
+                        {imageUrl && <img src={imageUrl} alt="Processed Image" id="image-result"/>}
+                    </div>
+                    <div className="buttons-row">
+                        <button className="action-button" style={{
+                            borderRight: allowDownload ? "1px solid #707070" : "none",
+                            width: allowDownload ? "50%" : "100%"
+                        }} onClick={handleOpen}>Open
+                        </button>
+                        {allowDownload && <button className="action-button" onClick={handleSave}>Download</button>}
+                    </div>
                 </div>
             </div>
         </div>

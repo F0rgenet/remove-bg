@@ -4,12 +4,12 @@ import {imageURLtoFile} from "~utils";
 export function createContextMenu() {
     chrome.contextMenus.create({
         id: "context-open",
-        title: "Remove controller and open",
+        title: "Remove background and open",
         contexts: ["image"]
     });
     chrome.contextMenus.create({
         id: "context-save",
-        title: "Remove controller and save",
+        title: "Remove background and save",
         contexts: ["image"]
     });
 }

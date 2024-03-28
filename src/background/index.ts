@@ -1,10 +1,9 @@
 import {setupContextMenuEvents} from "~events/context-menu";
 import {onInstalled} from "~events/installation";
 import {fileToDataURL} from "~utils";
-import {type ImageProcessingData, processImageAction, storageKey} from "~model/image-processing";
+import {processImageAction} from "~model/image-processing";
 
 async function copyImageToClipboard(imageURL: string): Promise<void> {
-    // FIXME: Blob size не даёт
     const response = await fetch(imageURL);
     const blob = await response.blob();
     console.log(blob)
