@@ -8,6 +8,7 @@ async function copyImageToClipboard(imageURL: string): Promise<void> {
     const blob = await response.blob();
     console.log(blob)
     const clipboardItemInput = new ClipboardItem({'image/png' : blob});
+    // TODO: Fix
     await navigator.clipboard.write([clipboardItemInput]);
 }
 
@@ -27,11 +28,11 @@ async function executeScript(callback: (...args: any[]) => unknown, ...args: any
     chrome.scripting.executeScript({ target: { tabId: tab.id }, func: callback, args: args }).then();
 }
 
-
-export const enum ContextMenuAction {
+export const enum ImageAction {
     COPY = 0,
     SAVE = 1,
-    OPEN = 2
+    OPEN = 2,
+    PROCESS = 3
 }
 
 export async function copyImage(imageURL: string){
@@ -46,7 +47,7 @@ export async function openImage(imageURL: string) {
     await chrome.tabs.create({ url: imageURL});
 }
 
-async function removeBackgroundAction(file: File, action: ContextMenuAction){
+async function removeBackgroundAction(file: File, action: ImageAction){
     const fileDataURL =  await fileToDataURL(file);
     if (!fileDataURL) {
         throw new Error(`File dataURL not found: ${file}`)
@@ -55,15 +56,19 @@ async function removeBackgroundAction(file: File, action: ContextMenuAction){
     const resultURL = processingResponse.resultURL;
 
     switch (action) {
-        case ContextMenuAction.COPY:
+        case ImageAction.COPY:
             await copyImage(resultURL);
             break;
-        case ContextMenuAction.SAVE:
+        case ImageAction.SAVE:
             await saveImage(resultURL);
             break;
-        case ContextMenuAction.OPEN:
+        case ImageAction.OPEN:
             await openImage(resultURL);
             break;
+        case ImageAction.PROCESS:
+            break;
+        default:
+            throw new Error("Wrong context action")
     }
 }
 

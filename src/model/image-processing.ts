@@ -1,38 +1,51 @@
 import {Storage} from "@plasmohq/storage";
 import setBadgeText, {BadgeTextLevel} from "~events/badge-actions";
 
-export enum ImageProcessingStage {
-    EMPTY = "empty",
-    WORKING = "working",
-    DONE = "done"
-}
-
-export const storageKey = "ImageProcessingData";
-
-export type ImageProcessingData = {imageURL: string, stage: ImageProcessingStage, usageCount: number};
-
+export const imageProcessingStorageKey = "ImageProcessingData";
+export type ImageProcessingData = {imageURL: string, stage: ImageProcessingStage, failureReason?: string};
 export type ImageProcessingResponse = {success: boolean, resultURL: string, failureReason?: string};
 
-export const enum ProcessingStep {
-    EMPTY = 0,
-    WORKING = 1,
-    DONE = 2
+export const enum ImageProcessingStage {
+    EMPTY = "EMPTY",
+    WORKING = "WORKING",
+    DONE = "DONE",
+    FAILED = "FAILED"
 }
 
-export async function setProcessingStep(step: ProcessingStep, imageURL?: string): Promise<void> {
+export async function setProcessingStep(step: ImageProcessingStage, imageURL?: string, failureReason?: string): Promise<void> {
     const storage = new Storage();
     switch (step) {
-        case ProcessingStep.EMPTY:
-            await storage.set(storageKey, { imageURL: null, stage: ImageProcessingStage.EMPTY });
+        case ImageProcessingStage.EMPTY:
+            await storage.set(imageProcessingStorageKey, {
+                imageURL: null,
+                stage: ImageProcessingStage.EMPTY,
+                failureReason: null
+            });
             setBadgeText("");
             break;
-        case ProcessingStep.WORKING:
-            await storage.set(storageKey, { imageURL: null, stage: ImageProcessingStage.WORKING });
+        case ImageProcessingStage.WORKING:
+            await storage.set(imageProcessingStorageKey, {
+                imageURL: null,
+                stage: ImageProcessingStage.WORKING,
+                failureReason: null
+            });
             setBadgeText("LOAD", BadgeTextLevel.PROGRESS);
             break;
-        case ProcessingStep.DONE:
-            await storage.set(storageKey, { imageURL: imageURL, stage: ImageProcessingStage.DONE });
+        case ImageProcessingStage.DONE:
+            await storage.set(imageProcessingStorageKey, {
+                imageURL: imageURL,
+                stage: ImageProcessingStage.DONE,
+                failureReason: null
+            });
             setBadgeText("DONE", BadgeTextLevel.RESULT);
+            break;
+        case ImageProcessingStage.FAILED:
+            await storage.set(imageProcessingStorageKey, {
+                imageURL: null,
+                stage: ImageProcessingStage.FAILED,
+                failureReason: failureReason
+            });
+            setBadgeText("FAIL", BadgeTextLevel.ERROR);
             break;
     }
 }
@@ -41,7 +54,7 @@ export async function processImageAction(imageFilename: string, imageDataURL: st
     if (!imageDataURL) {
         return;
     }
-    await setProcessingStep(ProcessingStep.WORKING);
+    await setProcessingStep(ImageProcessingStage.WORKING);
 
     const fetchResponse = await fetch(imageDataURL);
     const blob = await fetchResponse.blob();
@@ -56,14 +69,11 @@ export async function processImageAction(imageFilename: string, imageDataURL: st
 
     const result: ImageProcessingResponse = (await response.json()).response;
 
-
     if (result.success) {
-        await setProcessingStep(ProcessingStep.DONE, result.resultURL);
+        await setProcessingStep(ImageProcessingStage.DONE, result.resultURL);
         return result;
     } else {
-        await setProcessingStep(ProcessingStep.EMPTY);
-        throw new Error(`Cant process image: ${imageFilename}`)
+        await setProcessingStep(ImageProcessingStage.FAILED, null, result.failureReason);
+        throw new Error(`Cant process image: ${imageFilename}\n${result.failureReason}`)
     }
 }
-
-export default processImageAction;

@@ -1,26 +1,50 @@
 import "../static/styles.css";
-import { useNavigate } from "react-router-dom";
-import { Storage } from "@plasmohq/storage";
-import { useEffect, useState } from "react";
-import { sendToBackground } from "@plasmohq/messaging";
-import { ContextMenuAction } from "~background";
-import {type ImageProcessingData, ProcessingStep, setProcessingStep, storageKey} from "~model/image-processing";
+import {useNavigate} from "react-router-dom";
+import {Storage} from "@plasmohq/storage";
+import {useEffect, useState} from "react";
+import {sendToBackground} from "@plasmohq/messaging";
+import {ImageAction} from "~background";
+import {
+    type ImageProcessingData,
+    ImageProcessingStage,
+    imageProcessingStorageKey,
+    setProcessingStep
+} from "~model/image-processing";
 
-const Result = () => {
+import { Clipboard as ClipboardIcon, Download as DownloadIcon, ExternalLink as ExternalLinkIcon } from "lucide-react"
+
+const ResultPage = () => {
     const navigate = useNavigate();
     const storage = new Storage();
     const [imageUrl, setImageUrl] = useState("");
-    const [allowDownload, setAllowDownload] = useState(true); // Флаг для разрешения скачивания
-    const [action, setAction] = useState(""); // Состояние для отслеживания текущего действия
+    const [allowDownload, setAllowDownload] = useState(true);
+    const [action, setAction] = useState("");
 
     useEffect(() => {
         const fetchData = async () => {
-            const result: ImageProcessingData = await storage.get(storageKey);
+            const result: ImageProcessingData = await storage.get(imageProcessingStorageKey);
             const imageURL: string = result.imageURL;
-            setImageUrl(imageURL);
+            let imageExists: boolean;
+            try {
+                imageExists = (await fetch(imageURL)).status == 200;
+            } catch (error) {
+                console.warn(error)
+                imageExists = false;
+            }
+            if (!imageExists) {
+                await setProcessingStep(ImageProcessingStage.EMPTY);
+                console.log("Image is not available anymore")
+                navigate("/home")
+            }
+            else if (imageURL){
+                setImageUrl(imageURL);
+            } else {
+                await setProcessingStep(ImageProcessingStage.FAILED, null, "Image is not available");
+                navigate("/error");
+            }
         };
         fetchData().then();
-    }, []);
+    }, [action]);
 
     useEffect(() => {
         const checkScriptInjection = async () => {
@@ -28,7 +52,6 @@ const Result = () => {
                 const testFunction = ()=>{return 2+2};
                 const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
                 await chrome.scripting.executeScript({target: {tabId: tab.id}, func: testFunction }).then();
-                console.log("Can be injected")
                 setAllowDownload(true);
             } catch (error) {
                 console.log(`Cant be injected: ${error}`)
@@ -40,27 +63,27 @@ const Result = () => {
 
     const handleRedirect = () => {
         navigate("/home");
-        setProcessingStep(ProcessingStep.EMPTY).then();
+        setProcessingStep(ImageProcessingStage.EMPTY).then();
     };
 
     const handleCopy = async () => {
-        await sendToBackground({ name: "result-action", body: { action: ContextMenuAction.COPY } });
-        setAction("Image was copied! ✅");
+        await sendToBackground({ name: "result-action", body: { action: ImageAction.COPY } });
+        setAction("Image copied! ✅");
     };
 
     const handleSave = async () => {
         if (allowDownload) {
-            await sendToBackground({ name: "result-action", body: { action: ContextMenuAction.SAVE } });
-            setAction("Image was saved! ✅");
+            await sendToBackground({ name: "result-action", body: { action: ImageAction.SAVE } });
+            setAction("Image saved! ✅");
         } else {
-            alert("Download is not allowed on this page.");
+            alert("Download is not allowed on this page");
         }
     };
 
     const handleOpen = async () => {
-        const result: ImageProcessingData = await storage.get(storageKey);
+        const result: ImageProcessingData = await storage.get(imageProcessingStorageKey);
         await chrome.tabs.create({ url: result.imageURL });
-        setAction("Image was opened! ✅");
+        setAction("Image opened! ✅");
     };
 
     return (
@@ -72,18 +95,19 @@ const Result = () => {
                     <div id="result-bounding-box">
                         {imageUrl && <img src={imageUrl} alt="Processed Image" id="image-result"/>}
                     </div>
-                    <div className="buttons-row">
-                        <button className="action-button" style={{
-                            borderRight: allowDownload ? "1px solid #707070" : "none",
-                            width: allowDownload ? "50%" : "100%"
-                        }} onClick={handleOpen}>Open
-                        </button>
-                        {allowDownload && <button className="action-button" onClick={handleSave}>Download</button>}
-                    </div>
+                </div>
+                <div className="buttons-row">
+                    {!allowDownload && <button className="action-button" style={{ width: "100%" }} onClick={handleOpen}>
+                        <ExternalLinkIcon size={16}/>Open</button>}
+                    {allowDownload && <button className="action-button" style={{ borderRight: "1px solid #707070",
+                        width: "50%" }} onClick={handleCopy}>
+                        <ClipboardIcon size={16}/>Copy</button>}
+                    {allowDownload && <button className="action-button" style={{ width: "50%" }} onClick={handleSave}>
+                        <DownloadIcon size={16}/>Download</button>}
                 </div>
             </div>
         </div>
     );
 };
 
-export default Result;
+export default ResultPage;

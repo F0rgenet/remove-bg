@@ -1,22 +1,23 @@
 import {type PlasmoMessaging} from "@plasmohq/messaging"
-import {type ImageProcessingData, storageKey} from "~model/image-processing";
+import {type ImageProcessingData, imageProcessingStorageKey} from "~model/image-processing";
 import {Storage} from "@plasmohq/storage";
-import {ContextMenuAction, copyImage, saveImage} from "~background";
+import {ImageAction, copyImage, saveImage} from "~background";
 
 
-type RequestBody = {action: ContextMenuAction};
+type RequestBody = {action: ImageAction};
 const handler: PlasmoMessaging.MessageHandler = async (req, res) => {
     const storage = new Storage();
-    const imageProcessingData = await storage.get(storageKey) as ImageProcessingData;
+    const imageProcessingData = await storage.get(imageProcessingStorageKey) as ImageProcessingData;
     const imageURL = imageProcessingData.imageURL;
     switch (req.body.action) {
-        case ContextMenuAction.COPY:
+        case ImageAction.COPY:
             await copyImage(imageURL);
             break;
-        case ContextMenuAction.SAVE:
+        case ImageAction.SAVE:
             await saveImage(imageURL);
             break;
     }
+    res.send({});
 }
 
 export default handler

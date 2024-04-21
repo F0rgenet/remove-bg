@@ -1,12 +1,12 @@
-import React, { useEffect, useState } from "react";
-import { HashRouter as Router, Navigate, Route, Routes } from 'react-router-dom';
-import { Storage } from "@plasmohq/storage";
+import React, {useEffect, useState} from "react";
+import {HashRouter as Router, Navigate, Route, Routes} from 'react-router-dom';
+import {Storage} from "@plasmohq/storage";
 
-import { type ImageProcessingData, ImageProcessingStage, storageKey } from "~model/image-processing";
+import {type ImageProcessingData, ImageProcessingStage, imageProcessingStorageKey} from "~model/image-processing";
 
-import Home from "~pages/home";
-import Loading from "~pages/loading";
-import Result from "~pages/result";
+import HomePage from "~pages/home";
+import ResultPage from "~pages/result";
+import ErrorPage from "~pages/error";
 
 import "./static/styles.css";
 
@@ -16,17 +16,20 @@ function IndexPopup() {
     useEffect(() => {
         const checkProcessingStage = async () => {
             const storage = new Storage();
-            const processingData: ImageProcessingData = await storage.get(storageKey);
+            const processingData: ImageProcessingData = await storage.get(imageProcessingStorageKey);
 
             switch (processingData.stage) {
                 case ImageProcessingStage.DONE:
                     setRoute("/result");
                     break;
                 case ImageProcessingStage.WORKING:
-                    setRoute("/loading");
+                    setRoute("/home");
                     break;
                 case ImageProcessingStage.EMPTY:
                     setRoute("/home");
+                    break;
+                case ImageProcessingStage.FAILED:
+                    setRoute("/error");
                     break;
                 default:
                     throw new Error(`Wrong ImageProcessingStage: ${processingData.stage}`);
@@ -43,10 +46,9 @@ function IndexPopup() {
         <Router>
             <Routes>
                 <Route path="/" element={<Navigate replace to={route} />} />
-                <Route path="/home" element={<Home />} />
-                <Route path="/loading" element={<Loading />} />
-                <Route path="/result" element={<Result />} />
-                <Route path="/error" element={<div>Error loading processing stage</div>} />
+                <Route path="/home" element={<HomePage />} />
+                <Route path="/result" element={<ResultPage />} />
+                <Route path="/error" element={<ErrorPage />} />
             </Routes>
         </Router>
     );

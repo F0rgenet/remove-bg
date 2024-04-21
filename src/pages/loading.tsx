@@ -1,9 +1,9 @@
-import React, { useEffect } from "react";
+import React from "react";
 import loadingGif from "data-base64:/assets/loading.gif";
 import "../static/styles.css";
 
 
-const Loading = () => {
+const LoadingPage = () => {
     return (
         <div id="popup-loading" className="popup-page">
             <div className="frame">
@@ -14,4 +14,4 @@ const Loading = () => {
     );
 };
 
-export default Loading;
+export default LoadingPage;

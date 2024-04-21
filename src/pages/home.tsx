@@ -1,10 +1,10 @@
 import React, {useEffect, useState} from 'react';
 import {useNavigate} from "react-router-dom";
 
-import {type ImageProcessingResponse} from "~model/image-processing";
+import {type ImageProcessingData, ImageProcessingStage, imageProcessingStorageKey} from "~model/image-processing";
 import {useImageUpload} from "~hooks/image-upload";
 import RatingComponent from "~components/rating";
-import Loading from "~pages/loading"
+import LoadingPage from "~pages/loading"
 import {fileToDataURL} from "~utils";
 
 import {Storage} from "@plasmohq/storage";
@@ -34,10 +34,54 @@ function UploadButton({onFileSelect}) {
     );
 }
 
-const Home = () => {
+const HomePage = () => {
     const navigate = useNavigate();
     const storage = new Storage();
     const [loading, setLoading] = useState(false);
+
+    const showResults = async (processingResponse: ImageProcessingData) => {
+        setLoading(false);
+        switch (processingResponse.stage) {
+            case ImageProcessingStage.EMPTY:
+                console.warn("EMPTY stage in showResults")
+                break;
+            case ImageProcessingStage.WORKING:
+                console.warn("WORKING stage in showResults")
+                setLoading(true);
+                break;
+            case ImageProcessingStage.DONE:
+                navigate("/result");
+                break;
+            case ImageProcessingStage.FAILED:
+                navigate("/error");
+                break;
+        }
+    }
+
+    useEffect(() => {
+        const checkOnloadState = async () => {
+            const result: ImageProcessingData = await storage.get(imageProcessingStorageKey);
+            if (result.stage == ImageProcessingStage.WORKING) {
+                setLoading(true);
+            }
+        }
+        checkOnloadState().then();
+    }, []);
+
+    useEffect(() => {
+        const checkResults = async () => {
+            const result: ImageProcessingData = await storage.get(imageProcessingStorageKey);
+            if (result.stage == ImageProcessingStage.DONE || result.stage == ImageProcessingStage.FAILED) {
+                await showResults(result);
+            }
+        }
+
+        const intervalID = setInterval(() => {
+            checkResults().then();
+        }, 50)
+
+        return () => clearInterval(intervalID);
+    }, [loading]);
 
     const onFileSelect = async (file: File) => {
         const usageCount = await storage.get("UsageCount");
@@ -45,24 +89,18 @@ const Home = () => {
         await storage.set("RatingClicked", false);
 
         setLoading(true);
-        const processingResponse: ImageProcessingResponse = (await sendToBackground({
+        await sendToBackground({
             name: "processing",
             body: {
                 imageDataURL: await fileToDataURL(file),
                 imageFilename: file.name
             }
-        })).result
-        setLoading(false);
-        if (processingResponse.success) {
-            navigate("/result");
-        } else {
-            navigate("/error");
-        }
+        })
     };
 
     const { handleDragOver, handleDragLeave, handleDrop, dragOver } = useImageUpload(onFileSelect);
 
-    if (loading){ return <Loading/> }
+    if (loading){ return <LoadingPage/> }
 
     return (
         <div id="popup-main" className="popup-page">
@@ -81,4 +119,4 @@ const Home = () => {
     )
 }
 
-export default Home
+export default HomePage

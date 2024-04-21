@@ -18,13 +18,11 @@ function RatingComponent() {
 
     useEffect(() => {
         const fetchData = async () => {
-            // TODO: Переписать
             const count: number = await storage.get("UsageCount");
             const ratingClicked: boolean = await storage.get("RatingClicked");
-            const ratingShowed: boolean = await storage.get("RatingShowed");
-            if (((count === 10 || count == 1) || (ratingShowed)) && !ratingClicked) {
+            // TODO: Fix count = 10
+            if ((count === 10 || count == 1) && !ratingClicked) {
                 setShowRating(true);
-                await storage.set("RatingShowed", true);
             } else {
                 setShowRating(false);
             }
@@ -43,7 +41,6 @@ function RatingComponent() {
         chrome.tabs.create({ url: url }).then()
         setShowRating(false);
         await storage.set("RatingClicked", true);
-        await storage.set("RatingShowed", false);
     };
 
     const handleStarHover = (starIndex: number) => {
